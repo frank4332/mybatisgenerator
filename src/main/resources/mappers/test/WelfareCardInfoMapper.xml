@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.haier.openplatform.haiertravel.welfare.dao.WelfareCardInfoDAO">
+
+    <!-- oracle 分页头 -->
+    <sql id="pagination_Head">
+        <![CDATA[
+            select * from ( select row_.*, rownum rownum_ from (
+        ]]>
+    </sql>
+    <!-- oracle 分页尾 -->
+    <sql id="pagination_Tail">
+        <![CDATA[
+            ) row_ where rownum <= #{pager.pageSize} * #{pager.currentPage} ) where rownum_ > #{pager.firstResult}
+        ]]>
+    </sql>
+    <!-- count * from -->
+    <sql id="count_Head">
+        <![CDATA[
+            select count(*) from (
+        ]]>
+    </sql>
+    <sql id="count_Tail">
+        <![CDATA[
+            )
+        ]]>
+    </sql>
+    
+    <sql id="Base_Column_List">
+        WCI.WC_NO,
+        WCI.WC_SERIAL_NUMBER,
+        WCI.WC_DEPARTMENT,
+        WCI.WC_STATUS,
+        WCI.WC_USER,
+        WCI.WC_BALANCE,
+        WCI.WC_DATE,
+        WCI.WC_GMT_MODIFIED
+    </sql>
+    
+    <sql id="card_info_fragment">
+        select
+            <include refid="Base_Column_List" />
+        from
+            WELFARE_CARD_INFO WCI
+        where
+            1 = 1
+        <if test="wcNo != null and wcNo != ''">
+        and
+            WCI.WC_NO = #{wcNo,jdbcType=VARCHAR}
+        </if>
+        <if test="wcSerialNumber != null and wcSerialNumber != ''">
+        and
+            WCI.WC_SERIAL_NUMBER = #{wcSerialNumber,jdbcType=VARCHAR}
+        </if>
+        <if test="wcDepartment != null and wcDepartment != ''">
+        and
+            WCI.WC_DEPARTMENT = #{wcDepartment,jdbcType=VARCHAR}
+        </if>
+        <if test="wcStatus != null">
+        and
+            WCI.WC_STATUS = #{wcStatus,jdbcType=INTEGER}
+        </if>
+        <if test="wcUser != null and wcUser != ''">
+        and
+            WCI.WC_USER = #{wcUser,jdbcType=VARCHAR}
+        </if>
+        <if test="wcBalance != null">
+        and
+            WCI.WC_BALANCE = #{wcBalance,jdbcType=DECIMAL}
+        </if>
+        <if test="wcDate != null and wcDate != ''">
+        and
+            WCI.WC_DATE = #{wcDate,jdbcType=DATE}
+        </if>
+        <if test="wcGMTmodified != null and wcGMTmodified != ''">
+        and
+            WCI.WC_GMT_MODIFIED = #{wcGMTmodified,jdbcType=DATE}
+        </if>
+    </sql>
+    
+    <resultMap id="WelfareCardInfoMap" type="com.haier.openplatform.haiertravel.welfare.domain.WelfareCardInfo">
+        <result column="WC_NO" property="wcNo" jdbcType="VARCHAR" />
+        <result column="WC_SERIAL_NUMBER" property="wcSerialNumber" jdbcType="VARCHAR" />
+        <result column="WC_DEPARTMENT" property="wcDepartment" jdbcType="VARCHAR" />
+        <result column="WC_STATUS" property="wcStatus" jdbcType="INTEGER" />
+        <result column="WC_USER" property="wcUser" jdbcType="VARCHAR" />
+        <result column="WC_BALANCE" property="wcBalance" jdbcType="DECIMAL" />
+        <result column="WC_DATE" property="wcDate" jdbcType="DATE" />
+        <result column="WC_GMT_MODIFIED" property="wcGMTmodified" jdbcType="DATE" />
+    </resultMap>
+    
+    <!-- 通过当前登陆用户登录名，获取福利卡对象 -->
+    <select id="findCardInfoByUserName" resultMap="WelfareCardInfoMap">
+	    select
+	        <include refid="Base_Column_List" />
+	    from
+	        WELFARE_CARD_INFO WCI
+	    where
+	        1=1
+	    and
+	        WCI.WC_USER = #{wcUser,jdbcType=VARCHAR}
+    </select>
+    
+    <!-- 通过福利卡号，获取福利卡对象 -->
+    <select id="findCardInfoByWcNo" resultMap="WelfareCardInfoMap">
+        select
+            <include refid="Base_Column_List" />
+        from
+            WELFARE_CARD_INFO WCI
+        where
+            1=1
+        and
+            WCI.WC_NO = #{wcNo,jdbcType=VARCHAR}
+    </select>
+    
+    <!-- 保存福利卡信息 -->
+    <insert id="insertWelfareCardInfo" parameterType="com.haier.openplatform.haiertravel.welfare.domain.WelfareCardInfo">
+        insert into WELFARE_CARD_INFO(
+            WC_NO,
+	        WC_SERIAL_NUMBER,
+	        WC_DEPARTMENT,
+	        WC_STATUS,
+	        WC_USER,
+	        WC_BALANCE,
+	        WC_DATE,
+	        WC_GMT_MODIFIED
+        )
+        values(
+            #{wcNo,jdbcType=VARCHAR},
+            #{wcSerialNumber,jdbcType=VARCHAR},
+            #{wcDepartment,jdbcType=VARCHAR},
+            #{wcStatus,jdbcType=INTEGER},
+            #{wcUser,jdbcType=VARCHAR},
+            #{wcBalance,jdbcType=DECIMAL},
+            #{wcDate,jdbcType=DATE},
+            #{wcGMTmodified,jdbcType=DATE}
+        )
+    </insert>
+    
+    <!-- 更新福利卡信息 -->
+    <update id="updateWelfareCardInfo" parameterType="com.haier.openplatform.haiertravel.welfare.domain.WelfareCardInfo">
+        update
+            WELFARE_CARD_INFO WCI
+        <set>
+        	<if test="wcSerialNumber != null ">
+        	    WCI.WC_SERIAL_NUMBER = #{wcSerialNumber,jdbcType=VARCHAR},
+        	</if>
+           <if test="wcDepartment != null and wcDepartment != ''">
+            	WCI.WC_DEPARTMENT = #{wcDepartment,jdbcType=VARCHAR},
+            </if>
+            <if test="wcStatus != null ">
+           	    WCI.WC_STATUS = #{wcStatus,jdbcType=INTEGER},
+            </if>
+            <if test="wcUser != null and wcUser != ''">
+            	WCI.WC_USER = #{wcUser,jdbcType=VARCHAR},
+            </if>
+            <if test="wcBalance != null ">
+           	    WCI.WC_BALANCE = #{wcBalance,jdbcType=DECIMAL},
+            </if>
+            <if test="wcGMTmodified != null and wcGMTmodified != ''">
+            	WCI.WC_GMT_MODIFIED = #{wcGMTmodified,jdbcType=DATE}
+            </if>
+          </set>
+        where
+            WCI.WC_NO = #{wcNo,jdbcType=VARCHAR}
+    </update>
+    
+    <!-- 根据当前登录人工号获取挂在其名下的有效卡号 -->
+    <select id="getCardNoByUserName" resultType="java.lang.String">
+        select
+            WCI.WC_NO
+        from
+            WELFARE_CARD_INFO WCI
+        where
+            WCI.WC_USER = #{wcUser,jdbcType=VARCHAR}
+    </select>
+    
+    <!-- 分页查询列表 -->
+    <select id="searchCardInfoByModel" parameterType="com.haier.openplatform.haiertravel.welfare.model.SearchWelfareCardBaseInfoModel" resultMap="WelfareCardInfoMap" >
+        <include refid="pagination_Head" />
+        <include refid="card_info_fragment" />
+        <include refid="pagination_Tail" />
+    </select>
+    
+    <!-- 查询列表数量 -->
+    <select id="searchCardCountByModel" parameterType="com.haier.openplatform.haiertravel.welfare.model.SearchWelfareCardBaseInfoModel" resultType="long" >
+        <include refid="count_Head" />
+        <include refid="card_info_fragment" />
+        <include refid="count_Tail" />
+    </select>
+    
+</mapper>
